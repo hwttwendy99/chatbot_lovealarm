@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 恋爱铃</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --sakura-pink: #ffb7c5;
+            --sakura-pink-dark: #ff9aad;
+            --pastel-purple: #d6c2e9;
+            --pastel-blue: #b5d8eb;
+            --pastel-green: #c7e9c0;
+            --pastel-yellow: #f9e9b0;
+            --pastel-magenta: #f4b8e4;
+            --pastel-cyan: #b3e8e5;
+        }
+        
+        body {
+            font-family: 'Source Han Sans CN', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #fff0f7 0%, #f0f0ff 50%, #f0fff7 100%);
+            color: #888;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            font-size: 18px;
+            font-weight: 300;
+        }
+        
+        .anime-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            opacity: 0.1;
+            filter: blur(2px);
+        }
+        
+        .floating-petal {
+            position: absolute;
+            background-image: url('https://www.freepnglogos.com/uploads/petal-png/petal-png-15.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            animation: float 20s linear infinite;
+            opacity: 0.5;
+            z-index: -1;
+            filter: drop-shadow(0 0 5px rgba(255, 182, 193, 0.3));
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .glass-card {
+            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+        }
+        
+        .main-title {
+            background: linear-gradient(to right, var(--sakura-pink), var(--pastel-magenta));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 300;
+            text-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+            font-size: 3.5rem;
+            letter-spacing: 1px;
+            font-family: 'Source Han Sans CN', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            margin-top: 60px;
+        }
+        
+        .form-input {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(255, 182, 193, 0.3);
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--sakura-pink);
+            box-shadow: 0 0 15px rgba(255, 182, 193, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, var(--sakura-pink) 0%, var(--pastel-magenta) 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 182, 193, 0.4);
+        }
+        
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .register-link {
+            color: var(--sakura-pink);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .register-link:hover {
+            color: var(--pastel-magenta);
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .success-message {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #28a745;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景动画 -->
+    <div class="anime-bg"></div>
+    
+    <!-- 飘落的花瓣 -->
+    <div id="petals-container"></div>
+    
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div class="text-center">
+                <h1 class="main-title">恋爱铃</h1>
+                <p class="mt-2 text-gray-600 text-lg">欢迎回来，开始你的浪漫之旅</p>
+            </div>
+            
+            <div class="glass-card p-8">
+                <form id="loginForm" class="space-y-6">
+                    <div id="messageContainer"></div>
+                    
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2"></i>用户名
+                        </label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            required 
+                            class="form-input"
+                            placeholder="请输入用户名"
+                            autocomplete="username"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2"></i>密码
+                        </label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            required 
+                            class="form-input"
+                            placeholder="请输入密码"
+                            autocomplete="current-password"
+                        >
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input 
+                                id="remember-me" 
+                                name="remember-me" 
+                                type="checkbox" 
+                                class="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
+                            >
+                            <label for="remember-me" class="ml-2 block text-sm text-gray-700">
+                                记住我
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        type="submit" 
+                        id="loginBtn"
+                        class="login-btn"
+                    >
+                        <span id="loginBtnText">登录</span>
+                        <span id="loginBtnLoading" class="loading hidden"></span>
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">
+                        还没有账户？ 
+                        <a href="register.html" class="register-link">立即注册</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 创建飘落的花瓣
+        function createPetals() {
+            const container = document.getElementById('petals-container');
+            const petalCount = 15;
+            
+            for (let i = 0; i < petalCount; i++) {
+                setTimeout(() => {
+                    const petal = document.createElement('div');
+                    petal.className = 'floating-petal';
+                    petal.style.left = Math.random() * 100 + '%';
+                    petal.style.width = (Math.random() * 20 + 10) + 'px';
+                    petal.style.height = (Math.random() * 20 + 10) + 'px';
+                    petal.style.animationDelay = Math.random() * 20 + 's';
+                    petal.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                    container.appendChild(petal);
+                }, i * 200);
+            }
+        }
+        
+        // 显示消息
+        function showMessage(message, type = 'error') {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="${type === 'error' ? 'error-message' : 'success-message'}">${message}</div>`;
+        }
+        
+        // 清除消息
+        function clearMessage() {
+            document.getElementById('messageContainer').innerHTML = '';
+        }
+        
+        // 设置加载状态
+        function setLoading(loading) {
+            const btn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('loginBtnText');
+            const btnLoading = document.getElementById('loginBtnLoading');
+            
+            if (loading) {
+                btn.disabled = true;
+                btnText.classList.add('hidden');
+                btnLoading.classList.remove('hidden');
+            } else {
+                btn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoading.classList.add('hidden');
+            }
+        }
+        
+        // 登录处理
+        async function handleLogin(formData) {
+            try {
+                setLoading(true);
+                clearMessage();
+                
+                const response = await fetch('http://localhost:5001/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: formData.get('username'),
+                        password: formData.get('password'),
+                        remember_me: formData.get('remember-me') === 'on'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // 保存用户信息到本地存储
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    
+                    showMessage('登录成功！正在跳转...', 'success');
+                    
+                    // 延迟跳转到主页面
+                    setTimeout(() => {
+                        window.location.href = '0801chatbot.html';
+                    }, 1000);
+                } else {
+                    showMessage(data.error || '登录失败，请检查用户名和密码');
+                }
+            } catch (error) {
+                console.error('登录错误:', error);
+                showMessage('网络错误，请检查服务器连接');
+            } finally {
+                setLoading(false);
+            }
+        }
+        
+        // 表单提交处理
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            handleLogin(formData);
+        });
+        
+        // 检查是否已登录
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const user = localStorage.getItem('user');
+            
+            if (isLoggedIn === 'true' && user) {
+                // 如果已登录，直接跳转到主页面
+                window.location.href = '0801chatbot.html';
+            }
+        }
+        
+        // 页面加载时执行
+        document.addEventListener('DOMContentLoaded', function() {
+            createPetals();
+            checkLoginStatus();
+        });
+    </script>
+</body>
+</html> 

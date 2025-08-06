@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员控制台 - 恋爱铃</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --sakura-pink: #ffb7c5;
+            --sakura-pink-dark: #ff9aad;
+            --pastel-purple: #d6c2e9;
+            --pastel-blue: #b5d8eb;
+            --pastel-green: #c7e9c0;
+            --pastel-yellow: #f9e9b0;
+            --pastel-magenta: #f4b8e4;
+            --pastel-cyan: #b3e8e5;
+            --admin-blue: #4a6fa5;
+            --admin-blue-dark: #3a5985;
+        }
+        
+        body {
+            font-family: 'Source Han Sans CN', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f0f7ff 0%, #f0f0ff 50%, #f7f0ff 100%);
+            color: #444;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            font-size: 16px;
+            font-weight: 300;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, var(--admin-blue) 0%, var(--admin-blue-dark) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .admin-title {
+            font-weight: 500;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+        
+        .admin-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .admin-card-header {
+            background: linear-gradient(135deg, var(--admin-blue) 0%, var(--admin-blue-dark) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            font-size: 1.2rem;
+        }
+        
+        .admin-btn {
+            background: linear-gradient(135deg, var(--admin-blue) 0%, var(--admin-blue-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .admin-btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        
+        .admin-btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+        }
+        
+        .admin-btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #212529;
+        }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .admin-table th {
+            background-color: #f8f9fa;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 500;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .admin-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .admin-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .admin-sidebar {
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            height: calc(100vh - 64px);
+        }
+        
+        .sidebar-item {
+            padding: 1rem 1.5rem;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-item:hover {
+            background-color: #f8f9fa;
+            border-left-color: var(--admin-blue);
+        }
+        
+        .sidebar-item.active {
+            background-color: #f0f7ff;
+            border-left-color: var(--admin-blue);
+            font-weight: 500;
+        }
+        
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--admin-blue) 0%, var(--admin-blue-dark) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            font-size: 1.2rem;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        
+        .form-input {
+            background: white;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--admin-blue);
+            box-shadow: 0 0 0 0.2rem rgba(74, 111, 165, 0.25);
+        }
+        
+        .form-select {
+            background: white;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--admin-blue);
+            box-shadow: 0 0 0 0.2rem rgba(74, 111, 165, 0.25);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 0.25rem;
+        }
+        
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .badge-primary {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(74, 111, 165, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--admin-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 顶部导航栏 -->
+        <header class="admin-header flex items-center justify-between">
+            <div class="flex items-center">
+                <h1 class="admin-title">恋爱铃 - 管理员控制台</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="adminUsername" class="text-sm">管理员：加载中...</span>
+                <button id="logoutBtn" class="admin-btn">
+                    <i class="fas fa-sign-out-alt mr-1"></i> 退出登录
+                </button>
+            </div>
+        </header>
+        
+        <div class="flex">
+            <!-- 侧边栏 -->
+            <div class="admin-sidebar w-64">
+                <div class="sidebar-item active" data-section="users">
+                    <i class="fas fa-users mr-2"></i> 用户管理
+                </div>
+                <div class="sidebar-item" data-section="blocked-ips">
+                    <i class="fas fa-ban mr-2"></i> IP封禁管理
+                </div>
+                <div class="sidebar-item" data-section="stats">
+                    <i class="fas fa-chart-bar mr-2"></i> 系统统计
+                </div>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="flex-1 p-6">
+                <!-- 用户管理部分 -->
+                <div id="users-section" class="admin-card">
+                    <div class="admin-card-header flex items-center justify-between">
+                        <h2>用户管理</h2>
+                        <button id="refreshUsersBtn" class="admin-btn">
+                            <i class="fas fa-sync-alt mr-1"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div id="usersLoading" class="text-center py-4">
+                            <div class="loading mx-auto"></div>
+                            <p class="mt-2 text-gray-500">加载用户数据中...</p>
+                        </div>
+                        <div id="usersTable" class="hidden">
+                            <div class="overflow-x-auto">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>用户名</th>
+                                            <th>邮箱</th>
+                                            <th>角色</th>
+                                            <th>状态</th>
+                                            <th>注册时间</th>
+                                            <th>最后登录</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTableBody">
+                                        <!-- 用户数据将通过JavaScript动态填充 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- IP封禁管理部分 -->
+                <div id="blocked-ips-section" class="admin-card mt-6 hidden">
+                    <div class="admin-card-header flex items-center justify-between">
+                        <h2>IP封禁管理</h2>
+                        <div class="flex gap-2">
+                            <button id="refreshBlockedIpsBtn" class="admin-btn">
+                                <i class="fas fa-sync-alt mr-1"></i> 刷新
+                            </button>
+                            <button id="clearAllBlockedIpsBtn" class="admin-btn admin-btn-danger">
+                                <i class="fas fa-trash-alt mr-1"></i> 清除所有封禁
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div id="blockedIpsLoading" class="text-center py-4">
+                            <div class="loading mx-auto"></div>
+                            <p class="mt-2 text-gray-500">加载封禁IP数据中...</p>
+                        </div>
+                        <div id="blockedIpsTable" class="hidden">
+                            <div class="overflow-x-auto">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>IP地址</th>
+                                            <th>封禁时间</th>
+                                            <th>解封时间</th>
+                                            <th>封禁原因</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="blockedIpsTableBody">
+                                        <!-- 封禁IP数据将通过JavaScript动态填充 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 系统统计部分 -->
+                <div id="stats-section" class="admin-card mt-6 hidden">
+                    <div class="admin-card-header flex items-center justify-between">
+                        <h2>系统统计</h2>
+                        <button id="refreshStatsBtn" class="admin-btn">
+                            <i class="fas fa-sync-alt mr-1"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div id="statsLoading" class="text-center py-4">
+                            <div class="loading mx-auto"></div>
+                            <p class="mt-2 text-gray-500">加载统计数据中...</p>
+                        </div>
+                        <div id="statsContent" class="hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="bg-white p-4 rounded-lg shadow">
+                                    <h3 class="text-lg font-medium text-gray-700">用户统计</h3>
+                                    <div class="mt-2">
+                                        <div class="flex justify-between items-center py-2 border-b">
+                                            <span>总用户数</span>
+                                            <span id="totalUsers" class="font-medium">0</span>
+                                        </div>
+                                        <div class="flex justify-between items-center py-2 border-b">
+                                            <span>管理员数</span>
+                                            <span id="adminUsers" class="font-medium">0</span>
+                                        </div>
+                                        <div class="flex justify-between items-center py-2">
+                                            <span>活跃用户数</span>
+                                            <span id="activeUsers" class="font-medium">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg shadow">
+                                    <h3 class="text-lg font-medium text-gray-700">登录统计</h3>
+                                    <div class="mt-2">
+                                        <div class="flex justify-between items-center py-2 border-b">
+                                            <span>成功登录次数</span>
+                                            <span id="successfulLogins" class="font-medium">0</span>
+                                        </div>
+                                        <div class="flex justify-between items-center py-2">
+                                            <span>失败登录次数</span>
+                                            <span id="failedLogins" class="font-medium">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg shadow">
+                                    <h3 class="text-lg font-medium text-gray-700">安全统计</h3>
+                                    <div class="mt-2">
+                                        <div class="flex justify-between items-center py-2">
+                                            <span>当前封禁IP数</span>
+                                            <span id="blockedIps" class="font-medium">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 编辑用户模态框 -->
+    <div id="editUserModal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑用户</h3>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="mb-4">
+                        <label for="editUsername" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                        <input type="text" id="editUsername" class="form-input" disabled>
+                    </div>
+                    <div class="mb-4">
+                        <label for="editEmail" class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                        <input type="email" id="editEmail" class="form-input" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="editRole" class="block text-sm font-medium text-gray-700 mb-1">角色</label>
+                        <select id="editRole" class="form-select" required>
+                            <option value="user">普通用户</option>
+                            <option value="admin">管理员</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="editStatus" class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                        <select id="editStatus" class="form-select" required>
+                            <option value="active">活跃</option>
+                            <option value="disabled">禁用</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="editPassword" class="block text-sm font-medium text-gray-700 mb-1">重置密码（留空表示不修改）</label>
+                        <input type="password" id="editPassword" class="form-input" placeholder="输入新密码">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelEditBtn" class="admin-btn bg-gray-500">取消</button>
+                <button id="saveUserBtn" class="admin-btn admin-btn-success">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检查登录状态和管理员权限
+        function checkAdminAuth() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const userStr = localStorage.getItem('user');
+            
+            if (isLoggedIn !== 'true' || !userStr) {
+                // 未登录，跳转到登录页面
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            try {
+                const user = JSON.parse(userStr);
+                if (user.role !== 'admin') {
+                    // 不是管理员，跳转到主页
+                    alert('您没有管理员权限');
+                    window.location.href = '0801chatbot.html';
+                    return false;
+                }
+                
+                // 显示管理员用户名
+                document.getElementById('adminUsername').textContent = `管理员：${user.username}`;
+                return true;
+            } catch (error) {
+                console.error('解析用户数据错误:', error);
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+        
+        // 格式化日期时间
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return '从未';
+            
+            try {
+                const date = new Date(dateTimeStr);
+                return date.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            } catch (error) {
+                return dateTimeStr;
+            }
+        }
+        
+        // 获取用户列表
+        async function fetchUsers() {
+            try {
+                document.getElementById('usersLoading').classList.remove('hidden');
+                document.getElementById('usersTable').classList.add('hidden');
+                
+                const response = await fetch('http://localhost:5001/api/users');
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    renderUsersTable(data.users);
+                } else {
+                    alert('获取用户列表失败: ' + (data.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('获取用户列表错误:', error);
+                alert('网络错误，请检查服务器连接');
+            } finally {
+                document.getElementById('usersLoading').classList.add('hidden');
+                document.getElementById('usersTable').classList.remove('hidden');
+            }
+        }
+        
+        // 渲染用户表格
+        function renderUsersTable(users) {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            
+            if (users.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-gray-500">暂无用户数据</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                
+                // 角色和状态的样式
+                const roleClass = user.role === 'admin' ? 'badge-primary' : 'badge-info';
+                const statusClass = user.status === 'active' ? 'badge-success' : 'badge-danger';
+                
+                tr.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td><span class="badge ${roleClass}">${user.role === 'admin' ? '管理员' : '普通用户'}</span></td>
+                    <td><span class="badge ${statusClass}">${user.status === 'active' ? '活跃' : '禁用'}</span></td>
+                    <td>${formatDateTime(user.created_at)}</td>
+                    <td>${formatDateTime(user.last_login)}</td>
+                    <td>
+                        <button class="admin-btn edit-user-btn" data-user-id="${user.id}">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+            
+            // 添加编辑按钮事件
+            document.querySelectorAll('.edit-user-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const userId = btn.getAttribute('data-user-id');
+                    openEditUserModal(userId, users);
+                });
+            });
+        }
+        
+        // 打开编辑用户模态框
+        function openEditUserModal(userId, users) {
+            const user = users.find(u => u.id == userId);
+            if (!user) return;
+            
+            document.getElementById('editUserId').value = user.id;
+            document.getElementById('editUsername').value = user.username;
+            document.getElementById('editEmail').value = user.email;
+            document.getElementById('editRole').value = user.role;
+            document.getElementById('editStatus').value = user.status;
+            document.getElementById('editPassword').value = '';
+            
+            document.getElementById('editUserModal').classList.remove('hidden');
+        }
+        
+        // 关闭编辑用户模态框
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').classList.add('hidden');
+        }
+        
+        // 保存用户信息
+        async function saveUserChanges() {
+            try {
+                const userId = document.getElementById('editUserId').value;
+                const email = document.getElementById('editEmail').value;
+                const role = document.getElementById('editRole').value;
+                const status = document.getElementById('editStatus').value;
+                const password = document.getElementById('editPassword').value;
+                
+                if (!email) {
+                    alert('邮箱不能为空');
+                    return;
+                }
+                
+                const userData = {
+                    email,
+                    role,
+                    status
+                };
+                
+                if (password) {
+                    userData.password = password;
+                }
+                
+                const response = await fetch(`http://localhost:5001/api/user/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    alert('用户信息更新成功');
+                    closeEditUserModal();
+                    fetchUsers(); // 刷新用户列表
+                } else {
+                    alert('更新用户信息失败: ' + (data.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('更新用户信息错误:', error);
+                alert('网络错误，请检查服务器连接');
+            }
+        }
+        
+        // 获取封禁IP列表
+        async function fetchBlockedIps() {
+            try {
+                document.getElementById('blockedIpsLoading').classList.remove('hidden');
+                document.getElementById('blockedIpsTable').classList.add('hidden');
+                
+                const response = await fetch('http://localhost:5001/api/blocked-ips');
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    renderBlockedIpsTable(data.blocked_ips);
+                } else {
+                    alert('获取封禁IP列表失败: ' + (data.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('获取封禁IP列表错误:', error);
+                alert('网络错误，请检查服务器连接');
+            } finally {
+                document.getElementById('blockedIpsLoading').classList.add('hidden');
+                document.getElementById('blockedIpsTable').classList.remove('hidden');
+            }
+        }
+        
+        // 渲染封禁IP表格
+        function renderBlockedIpsTable(blockedIps) {
+            const tbody = document.getElementById('blockedIpsTableBody');
+            tbody.innerHTML = '';
+            
+            if (blockedIps.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-gray-500">暂无封禁IP数据</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            blockedIps.forEach(ip => {
+                const tr = document.createElement('tr');
+                
+                tr.innerHTML = `
+                    <td>${ip.ip_address}</td>
+                    <td>${formatDateTime(ip.blocked_at)}</td>
+                    <td>${formatDateTime(ip.unblock_at)}</td>
+                    <td>${ip.reason || '未知原因'}</td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 清除所有封禁IP
+        async function clearAllBlockedIps() {
+            if (!confirm('确定要清除所有封禁IP吗？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/blocked-ips', {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    alert('所有封禁IP已清除');
+                    fetchBlockedIps(); // 刷新封禁IP列表
+                } else {
+                    alert('清除封禁IP失败: ' + (data.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('清除封禁IP错误:', error);
+                alert('网络错误，请检查服务器连接');
+            }
+        }
+        
+        // 获取系统统计信息
+        async function fetchStats() {
+            try {
+                document.getElementById('statsLoading').classList.remove('hidden');
+                document.getElementById('statsContent').classList.add('hidden');
+                
+                const response = await fetch('http://localhost:5001/api/stats');
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    renderStats(data.stats);
+                } else {
+                    alert('获取系统统计信息失败: ' + (data.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('获取系统统计信息错误:', error);
+                alert('网络错误，请检查服务器连接');
+            } finally {
+                document.getElementById('statsLoading').classList.add('hidden');
+                document.getElementById('statsContent').classList.remove('hidden');
+            }
+        }
+        
+        // 渲染统计信息
+        function renderStats(stats) {
+            document.getElementById('totalUsers').textContent = stats.total_users;
+            document.getElementById('adminUsers').textContent = stats.admin_users;
+            document.getElementById('activeUsers').textContent = stats.active_users;
+            document.getElementById('successfulLogins').textContent = stats.successful_logins;
+            document.getElementById('failedLogins').textContent = stats.failed_logins;
+            document.getElementById('blockedIps').textContent = stats.blocked_ips;
+        }
+        
+        // 切换侧边栏菜单
+        function switchSection(sectionId) {
+            // 隐藏所有内容区域
+            document.querySelectorAll('#users-section, #blocked-ips-section, #stats-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // 显示选中的内容区域
+            document.getElementById(`${sectionId}-section`).classList.remove('hidden');
+            
+            // 更新侧边栏选中状态
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.querySelector(`.sidebar-item[data-section="${sectionId}"]`).classList.add('active');
+        }
+        
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+        
+        // 页面加载时执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查管理员权限
+            if (!checkAdminAuth()) return;
+            
+            // 加载用户列表
+            fetchUsers();
+            
+            // 侧边栏菜单切换
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    switchSection(section);
+                    
+                    // 根据选中的部分加载数据
+                    if (section === 'blocked-ips') {
+                        fetchBlockedIps();
+                    } else if (section === 'stats') {
+                        fetchStats();
+                    }
+                });
+            });
+            
+            // 刷新按钮事件
+            document.getElementById('refreshUsersBtn').addEventListener('click', fetchUsers);
+            document.getElementById('refreshBlockedIpsBtn').addEventListener('click', fetchBlockedIps);
+            document.getElementById('refreshStatsBtn').addEventListener('click', fetchStats);
+            
+            // 清除所有封禁IP按钮事件
+            document.getElementById('clearAllBlockedIpsBtn').addEventListener('click', clearAllBlockedIps);
+            
+            // 编辑用户模态框事件
+            document.getElementById('cancelEditBtn').addEventListener('click', closeEditUserModal);
+            document.getElementById('saveUserBtn').addEventListener('click', saveUserChanges);
+            
+            // 退出登录按钮事件
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+        });
+    </script>
+</body>
+</html>

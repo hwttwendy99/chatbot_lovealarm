@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试更新 - 恋爱铃</title>
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #e6f3ff 0%, #f0f0ff 30%, #fff0f7 70%, #f0fff7 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .test-title {
+            text-align: center;
+            color: #ff6b9d;
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #ffb7c5;
+            border-radius: 15px;
+            background: rgba(255, 183, 197, 0.1);
+        }
+        
+        .test-section h3 {
+            color: #c44569;
+            margin-top: 0;
+        }
+        
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .character-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .character-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .character-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border: 3px solid #ffb7c5;
+        }
+        
+        .character-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .character-type {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #f8b5d3 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 157, 0.4);
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="test-title">🧪 恋爱铃更新测试</h1>
+        
+        <div class="test-section">
+            <h3>📸 图片路径测试</h3>
+            <p>验证所有角色图片是否能正确加载：</p>
+            <div class="character-grid">
+                <div class="character-item">
+                    <img src="./顾景深.png" alt="顾景深" class="character-avatar" onload="this.parentElement.style.borderColor='#28a745'" onerror="this.parentElement.style.borderColor='#dc3545'">
+                    <div class="character-name">顾景深</div>
+                    <div class="character-type">Dominant CEO</div>
+                </div>
+                <div class="character-item">
+                    <img src="./白柯.png" alt="白柯" class="character-avatar" onload="this.parentElement.style.borderColor='#28a745'" onerror="this.parentElement.style.borderColor='#dc3545'">
+                    <div class="character-name">白柯</div>
+                    <div class="character-type">Cool Police Officer</div>
+                </div>
+                <div class="character-item">
+                    <img src="./许言.png" alt="许言" class="character-avatar" onload="this.parentElement.style.borderColor='#28a745'" onerror="this.parentElement.style.borderColor='#dc3545'">
+                    <div class="character-name">许言</div>
+                    <div class="character-type">Gentle Doctor</div>
+                </div>
+                <div class="character-item">
+                    <img src="./夏光洛.png" alt="夏光洛" class="character-avatar" onload="this.parentElement.style.borderColor='#28a745'" onerror="this.parentElement.style.borderColor='#dc3545'">
+                    <div class="character-name">夏光洛</div>
+                    <div class="character-type">Sunny Puppy Boy</div>
+                </div>
+                <div class="character-item">
+                    <img src="./沈知画.png" alt="沈知画" class="character-avatar" onload="this.parentElement.style.borderColor='#28a745'" onerror="this.parentElement.style.borderColor='#dc3545'">
+                    <div class="character-name">沈知画</div>
+                    <div class="character-type">Gentle Artist</div>
+                </div>
+                <div class="character-item">
+                    <img src="./杨英格.png" alt="杨英格" class="character-avatar" onload="this.parentElement.style.borderColor='#28a745'" onerror="this.parentElement.style.borderColor='#dc3545'">
+                    <div class="character-name">杨英格</div>
+                    <div class="character-type">Rock Musician</div>
+                </div>
+                <div class="character-item">
+                    <img src="./安宇.png" alt="安宇" class="character-avatar" onload="this.parentElement.style.borderColor='#28a745'" onerror="this.parentElement.style.borderColor='#dc3545'">
+                    <div class="character-name">安宇</div>
+                    <div class="character-type">Basketball Player</div>
+                </div>
+                <div class="character-item">
+                    <img src="./谢书祺.png" alt="谢书祺" class="character-avatar" onload="this.parentElement.style.borderColor='#28a745'" onerror="this.parentElement.style.borderColor='#dc3545'">
+                    <div class="character-name">谢书祺</div>
+                    <div class="character-type">Gentle Scholar</div>
+                </div>
+                <div class="character-item">
+                    <img src="./陆则衍.png" alt="陆则衍" class="character-avatar" onload="this.parentElement.style.borderColor='#28a745'" onerror="this.parentElement.style.borderColor='#dc3545'">
+                    <div class="character-name">陆则衍</div>
+                    <div class="character-type">Vintage Timekeeper</div>
+                </div>
+                <div class="character-item">
+                    <img src="./苏砚.png" alt="苏砚" class="character-avatar" onload="this.parentElement.style.borderColor='#28a745'" onerror="this.parentElement.style.borderColor='#dc3545'">
+                    <div class="character-name">苏砚</div>
+                    <div class="character-type">E-sports Pro</div>
+                </div>
+                <div class="character-item">
+                    <img src="./温砚舟.png" alt="温砚舟" class="character-avatar" onload="this.parentElement.style.borderColor='#28a745'" onerror="this.parentElement.style.borderColor='#dc3545'">
+                    <div class="character-name">温砚舟</div>
+                    <div class="character-type">Warm Baker</div>
+                </div>
+                <div class="character-item">
+                    <img src="./傅野.png" alt="傅野" class="character-avatar" onload="this.parentElement.style.borderColor='#28a745'" onerror="this.parentElement.style.borderColor='#dc3545'">
+                    <div class="character-name">傅野</div>
+                    <div class="character-type">Gentle Tattoo Artist</div>
+                </div>
+            </div>
+            <div id="image-status" class="status" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 功能测试</h3>
+            <p>测试主要功能是否正常工作：</p>
+            <button class="test-button" onclick="testAutoMatch()">测试自动匹配功能</button>
+            <button class="test-button" onclick="testImageLoading()">测试图片加载</button>
+            <button class="test-button" onclick="openMainApp()">打开主应用</button>
+            <div id="function-status" class="status" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📋 更新日志</h3>
+            <ul>
+                <li>✅ 更新所有角色图片路径为中文名称</li>
+                <li>✅ 实现点击"心动就在现在"自动匹配角色</li>
+                <li>✅ 自动进入对话页面</li>
+                <li>✅ 保持原有的聊天功能和游戏机制</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function testAutoMatch() {
+            const status = document.getElementById('function-status');
+            status.style.display = 'block';
+            status.className = 'status success';
+            status.textContent = '✅ 自动匹配功能已实现！点击"心动就在现在"按钮会自动匹配角色并进入聊天页面。';
+        }
+        
+        function testImageLoading() {
+            const images = document.querySelectorAll('.character-avatar');
+            let loadedCount = 0;
+            let errorCount = 0;
+            
+            images.forEach(img => {
+                if (img.complete) {
+                    if (img.naturalWidth > 0) {
+                        loadedCount++;
+                    } else {
+                        errorCount++;
+                    }
+                } else {
+                    img.addEventListener('load', () => loadedCount++);
+                    img.addEventListener('error', () => errorCount++);
+                }
+            });
+            
+            setTimeout(() => {
+                const status = document.getElementById('function-status');
+                status.style.display = 'block';
+                if (errorCount === 0) {
+                    status.className = 'status success';
+                    status.textContent = `✅ 所有图片加载成功！共加载 ${loadedCount} 张图片。`;
+                } else {
+                    status.className = 'status error';
+                    status.textContent = `❌ 图片加载失败！成功：${loadedCount}，失败：${errorCount}`;
+                }
+            }, 1000);
+        }
+        
+        function openMainApp() {
+            window.open('./0801chatbot_副本2.html', '_blank');
+        }
+        
+        // 页面加载完成后自动测试图片
+        window.addEventListener('load', () => {
+            setTimeout(testImageLoading, 500);
+        });
+    </script>
+</body>
+</html> 

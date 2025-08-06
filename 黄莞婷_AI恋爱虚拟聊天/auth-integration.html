@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鉴权集成指南 - 恋爱铃</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Source Han Sans CN', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #4a6fa5;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin: 2rem 0 1rem;
+            color: #4a6fa5;
+        }
+        
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin: 1.5rem 0 0.75rem;
+            color: #4a6fa5;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        pre {
+            background: #f1f1f1;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        code {
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .step {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .note {
+            background: #e7f3ff;
+            border-left: 4px solid #4a6fa5;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>恋爱铃 - 鉴权集成指南</h1>
+        
+        <div class="note">
+            <p><strong>注意：</strong>本文档提供了如何将鉴权功能集成到现有的0801chatbot.html页面中的指南。</p>
+        </div>
+        
+        <div class="step">
+            <h2>步骤1：添加鉴权脚本</h2>
+            <p>在0801chatbot.html的&lt;head&gt;标签中添加以下脚本引用：</p>
+            <pre><code>&lt;!-- 鉴权脚本 --&gt;
+&lt;script src="js/auth.js"&gt;&lt;/script&gt;
+&lt;script src="js/navbar.js"&gt;&lt;/script&gt;</code></pre>
+        </div>
+        
+        <div class="step">
+            <h2>步骤2：添加导航栏容器</h2>
+            <p>在&lt;body&gt;标签开始后添加导航栏容器：</p>
+            <pre><code>&lt;body data-requires-auth="true"&gt;
+    &lt;!-- 导航栏容器 --&gt;
+    &lt;div id="navbarContainer"&gt;&lt;/div&gt;
+    
+    &lt;!-- 原有内容... --&gt;</code></pre>
+            <p>注意：<code>data-requires-auth="true"</code>属性表示该页面需要登录才能访问。</p>
+        </div>
+        
+        <div class="step">
+            <h2>步骤3：添加用户信息显示</h2>
+            <p>在适当的位置添加用户信息显示：</p>
+            <pre><code>&lt;div class="user-info"&gt;
+    欢迎，&lt;span class="user-username"&gt;用户&lt;/span&gt;
+    &lt;a href="profile.html" class="logged-in-only"&gt;个人信息&lt;/a&gt;
+    &lt;a href="admin.html" class="admin-only hidden"&gt;管理控制台&lt;/a&gt;
+    &lt;button id="logoutBtn" class="logged-in-only"&gt;退出登录&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        
+        <div class="step">
+            <h2>步骤4：添加退出登录功能</h2>
+            <p>在页面的JavaScript部分添加退出登录按钮的事件处理：</p>
+            <pre><code>// 退出登录按钮事件
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+});</code></pre>
+        </div>
+        
+        <div class="step">
+            <h2>步骤5：修改现有的登录检查逻辑</h2>
+            <p>如果页面中已有登录检查逻辑，可以替换为使用auth.js中的函数：</p>
+            <pre><code>// 检查登录状态
+if (!checkLogin()) {
+    // 未登录，已自动跳转到登录页面
+    return;
+}
+
+// 更新用户界面
+updateNavbar();</code></pre>
+        </div>
+        
+        <div class="note">
+            <h3>完整的鉴权文件列表</h3>
+            <ul>
+                <li><strong>js/auth.js</strong> - 核心鉴权功能</li>
+                <li><strong>js/navbar.js</strong> - 导航栏组件</li>
+                <li><strong>js/auth-check.js</strong> - 简化的鉴权检查脚本</li>
+                <li><strong>login.html</strong> - 登录页面</li>
+                <li><strong>register.html</strong> - 注册页面</li>
+                <li><strong>profile.html</strong> - 个人信息页面</li>
+                <li><strong>change-password.html</strong> - 修改密码页面</li>
+                <li><strong>admin.html</strong> - 管理员控制台</li>
+                <li><strong>protected-page.html</strong> - 受保护页面示例</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

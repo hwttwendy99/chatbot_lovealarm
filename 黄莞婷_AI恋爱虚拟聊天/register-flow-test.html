@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册流程测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff0f7 0%, #f0f0ff 50%, #f0fff7 100%);
+        }
+        
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+        
+        .test-button.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .test-button.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        
+        .iframe-container {
+            width: 100%;
+            height: 700px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .step {
+            text-align: center;
+            flex: 1;
+            padding: 10px;
+            margin: 0 5px;
+            border-radius: 5px;
+            background: #e9ecef;
+            color: #6c757d;
+        }
+        
+        .step.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .step.completed {
+            background: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 注册流程测试</h1>
+        <p>这个页面将测试完整的注册流程：点击注册链接 → 进入注册页面 → 填写信息 → 提交注册 → 存储用户信息</p>
+        
+        <div class="step-indicator">
+            <div class="step" id="step1">步骤1: 点击注册链接</div>
+            <div class="step" id="step2">步骤2: 进入注册页面</div>
+            <div class="step" id="step3">步骤3: 填写注册信息</div>
+            <div class="step" id="step4">步骤4: 提交注册</div>
+            <div class="step" id="step5">步骤5: 验证存储</div>
+        </div>
+        
+        <div>
+            <button class="test-button" onclick="startRegisterFlowTest()">开始注册流程测试</button>
+            <button class="test-button success" onclick="testRegisterLink()">测试注册链接</button>
+            <button class="test-button warning" onclick="testRegistrationForm()">测试注册表单</button>
+            <button class="test-button" onclick="verifyUserStorage()">验证用户存储</button>
+            <button class="test-button" onclick="clearTestData()">清除测试数据</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>主应用</h2>
+        <div class="iframe-container">
+            <iframe id="main-app" src="0801chatbot.html"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        let testResults = [];
+        
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            resultsDiv.appendChild(resultDiv);
+            
+            testResults.push({ message, type, timestamp: new Date() });
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        function updateStep(stepNumber, status = 'active') {
+            // 重置所有步骤
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.className = 'step';
+            }
+            
+            // 设置当前步骤
+            const currentStepElement = document.getElementById(`step${stepNumber}`);
+            currentStepElement.className = `step ${status}`;
+            
+            // 设置已完成步骤
+            for (let i = 1; i < stepNumber; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.className = 'step completed';
+            }
+        }
+        
+        async function startRegisterFlowTest() {
+            addResult('🚀 开始注册流程测试...', 'info');
+            updateStep(1);
+            
+            try {
+                // 步骤1: 测试注册链接
+                addResult('步骤1: 测试注册链接...', 'info');
+                await testRegisterLink();
+                updateStep(1, 'completed');
+                updateStep(2);
+                
+                // 步骤2: 验证注册页面
+                addResult('步骤2: 验证注册页面...', 'info');
+                await verifyRegisterPage();
+                updateStep(2, 'completed');
+                updateStep(3);
+                
+                // 步骤3: 填写注册信息
+                addResult('步骤3: 填写注册信息...', 'info');
+                await fillRegistrationForm();
+                updateStep(3, 'completed');
+                updateStep(4);
+                
+                // 步骤4: 提交注册
+                addResult('步骤4: 提交注册...', 'info');
+                await submitRegistration();
+                updateStep(4, 'completed');
+                updateStep(5);
+                
+                // 步骤5: 验证用户存储
+                addResult('步骤5: 验证用户存储...', 'info');
+                await verifyUserStorage();
+                updateStep(5, 'completed');
+                
+                addResult('✅ 注册流程测试完成！', 'success');
+                
+            } catch (error) {
+                addResult('❌ 注册流程测试失败: ' + error.message, 'error');
+            }
+        }
+        
+        async function testRegisterLink() {
+            addResult('测试注册链接功能...', 'info');
+            
+            try {
+                const iframe = document.getElementById('main-app');
+                const iframeWindow = iframe.contentWindow;
+                
+                if (iframeWindow) {
+                    // 等待iframe加载
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    // 检查注册链接是否存在
+                    const showRegisterLink = iframeWindow.document.getElementById('show-register');
+                    if (showRegisterLink) {
+                        addResult('✅ 注册链接元素存在', 'success');
+                        
+                        // 模拟点击
+                        showRegisterLink.click();
+                        addResult('✅ 注册链接已点击', 'success');
+                        
+                        // 等待页面切换
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        
+                        return true;
+                    } else {
+                        addResult('❌ 注册链接元素不存在', 'error');
+                        return false;
+                    }
+                } else {
+                    addResult('❌ 无法访问iframe内容', 'error');
+                    return false;
+                }
+            } catch (error) {
+                addResult('❌ 测试注册链接时出错: ' + error.message, 'error');
+                return false;
+            }
+        }
+        
+        async function verifyRegisterPage() {
+            addResult('验证注册页面...', 'info');
+            
+            try {
+                const iframe = document.getElementById('main-app');
+                const iframeWindow = iframe.contentWindow;
+                
+                if (iframeWindow) {
+                    // 检查注册页面是否显示
+                    const registerPage = iframeWindow.document.getElementById('register-page');
+                    const isVisible = registerPage && !registerPage.classList.contains('hidden');
+                    
+                    if (isVisible) {
+                        addResult('✅ 注册页面已显示', 'success');
+                        
+                        // 检查注册表单元素
+                        const formElements = [
+                            'reg-username',
+                            'reg-email', 
+                            'reg-password',
+                            'reg-password-confirm',
+                            'register-form'
+                        ];
+                        
+                        const missingElements = formElements.filter(id => 
+                            !iframeWindow.document.getElementById(id)
+                        );
+                        
+                        if (missingElements.length === 0) {
+                            addResult('✅ 所有注册表单元素都存在', 'success');
+                            return true;
+                        } else {
+                            addResult('❌ 缺少注册表单元素: ' + missingElements.join(', '), 'error');
+                            return false;
+                        }
+                    } else {
+                        addResult('❌ 注册页面未显示', 'error');
+                        return false;
+                    }
+                } else {
+                    addResult('❌ 无法访问iframe内容', 'error');
+                    return false;
+                }
+            } catch (error) {
+                addResult('❌ 验证注册页面时出错: ' + error.message, 'error');
+                return false;
+            }
+        }
+        
+        async function fillRegistrationForm() {
+            addResult('填写注册信息...', 'info');
+            
+            try {
+                const iframe = document.getElementById('main-app');
+                const iframeWindow = iframe.contentWindow;
+                
+                if (iframeWindow) {
+                    // 生成测试用户名
+                    const testUsername = 'testuser' + Date.now();
+                    const testEmail = testUsername + '@test.com';
+                    const testPassword = 'test123';
+                    
+                    // 填写表单
+                    const usernameInput = iframeWindow.document.getElementById('reg-username');
+                    const emailInput = iframeWindow.document.getElementById('reg-email');
+                    const passwordInput = iframeWindow.document.getElementById('reg-password');
+                    const confirmInput = iframeWindow.document.getElementById('reg-password-confirm');
+                    
+                    if (usernameInput && emailInput && passwordInput && confirmInput) {
+                        usernameInput.value = testUsername;
+                        emailInput.value = testEmail;
+                        passwordInput.value = testPassword;
+                        confirmInput.value = testPassword;
+                        
+                        // 触发输入事件
+                        [usernameInput, emailInput, passwordInput, confirmInput].forEach(input => {
+                            input.dispatchEvent(new Event('input', { bubbles: true }));
+                        });
+                        
+                        addResult(`✅ 注册信息已填写: ${testUsername}`, 'success');
+                        
+                        // 保存测试数据供后续验证
+                        window.testRegistrationData = {
+                            username: testUsername,
+                            email: testEmail,
+                            password: testPassword
+                        };
+                        
+                        return true;
+                    } else {
+                        addResult('❌ 注册表单元素不存在', 'error');
+                        return false;
+                    }
+                } else {
+                    addResult('❌ 无法访问iframe内容', 'error');
+                    return false;
+                }
+            } catch (error) {
+                addResult('❌ 填写注册信息时出错: ' + error.message, 'error');
+                return false;
+            }
+        }
+        
+        async function submitRegistration() {
+            addResult('提交注册表单...', 'info');
+            
+            try {
+                const iframe = document.getElementById('main-app');
+                const iframeWindow = iframe.contentWindow;
+                
+                if (iframeWindow) {
+                    // 提交注册表单
+                    const registerForm = iframeWindow.document.getElementById('register-form');
+                    if (registerForm) {
+                        registerForm.dispatchEvent(new Event('submit', { bubbles: true }));
+                        addResult('✅ 注册表单已提交', 'success');
+                        
+                        // 等待注册处理
+                        await new Promise(resolve => setTimeout(resolve, 3000));
+                        
+                        return true;
+                    } else {
+                        addResult('❌ 注册表单不存在', 'error');
+                        return false;
+                    }
+                } else {
+                    addResult('❌ 无法访问iframe内容', 'error');
+                    return false;
+                }
+            } catch (error) {
+                addResult('❌ 提交注册时出错: ' + error.message, 'error');
+                return false;
+            }
+        }
+        
+        async function verifyUserStorage() {
+            addResult('验证用户存储...', 'info');
+            
+            try {
+                const testData = window.testRegistrationData;
+                if (!testData) {
+                    addResult('❌ 没有测试数据', 'error');
+                    return false;
+                }
+                
+                // 检查localStorage中的用户数据
+                const users = JSON.parse(localStorage.getItem('chatbot_users') || '{}');
+                const user = users[testData.username];
+                
+                if (user) {
+                    addResult('✅ 用户数据已存储', 'success');
+                    addResult(`用户名: ${user.username}`, 'info');
+                    addResult(`邮箱: ${user.email}`, 'info');
+                    addResult(`角色: ${user.role}`, 'info');
+                    addResult(`创建时间: ${user.createdAt}`, 'info');
+                    
+                    // 检查当前用户
+                    const currentUser = JSON.parse(localStorage.getItem('chatbot_current_user') || 'null');
+                    if (currentUser && currentUser.username === testData.username) {
+                        addResult('✅ 用户已自动登录', 'success');
+                    } else {
+                        addResult('⚠️ 用户未自动登录', 'warning');
+                    }
+                    
+                    return true;
+                } else {
+                    addResult('❌ 用户数据未存储', 'error');
+                    return false;
+                }
+            } catch (error) {
+                addResult('❌ 验证用户存储时出错: ' + error.message, 'error');
+                return false;
+            }
+        }
+        
+        function clearTestData() {
+            addResult('清除测试数据...', 'info');
+            
+            // 清除localStorage中的测试用户
+            const users = JSON.parse(localStorage.getItem('chatbot_users') || '{}');
+            const testUsers = Object.keys(users).filter(username => username.startsWith('testuser'));
+            
+            testUsers.forEach(username => {
+                delete users[username];
+                addResult(`已删除测试用户: ${username}`, 'info');
+            });
+            
+            localStorage.setItem('chatbot_users', JSON.stringify(users));
+            addResult('✅ 测试数据已清除', 'success');
+            
+            // 清除测试数据变量
+            delete window.testRegistrationData;
+        }
+        
+        // 页面加载时初始化
+        window.onload = function() {
+            addResult('页面加载完成，准备测试注册流程', 'info');
+            updateStep(1);
+        };
+    </script>
+</body>
+</html> 

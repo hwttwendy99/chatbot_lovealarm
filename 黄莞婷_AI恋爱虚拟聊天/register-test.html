@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff0f7 0%, #f0f0ff 50%, #f0fff7 100%);
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+        
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 注册功能测试</h1>
+        <p>这个页面用于测试注册功能是否正常工作。</p>
+        
+        <div>
+            <button class="test-button" onclick="openMainApp()">打开主应用</button>
+            <button class="test-button" onclick="testRegisterLink()">测试注册链接</button>
+            <button class="test-button" onclick="testLocalStorage()">测试本地存储</button>
+            <button class="test-button" onclick="clearStorage()">清除存储</button>
+        </div>
+        
+        <div id="results"></div>
+        
+        <div class="iframe-container">
+            <iframe id="main-app" src="0801chatbot.html"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        function openMainApp() {
+            addResult('打开主应用...', 'info');
+            const iframe = document.getElementById('main-app');
+            iframe.src = '0801chatbot.html';
+        }
+        
+        function testRegisterLink() {
+            addResult('测试注册链接...', 'info');
+            
+            try {
+                const iframe = document.getElementById('main-app');
+                const iframeWindow = iframe.contentWindow;
+                
+                if (iframeWindow) {
+                    // 等待iframe加载完成
+                    setTimeout(() => {
+                        try {
+                            iframeWindow.testRegisterFlow();
+                            addResult('已发送测试命令到主应用', 'success');
+                        } catch (error) {
+                            addResult('测试失败: ' + error.message, 'error');
+                        }
+                    }, 2000);
+                } else {
+                    addResult('无法访问iframe内容', 'error');
+                }
+            } catch (error) {
+                addResult('测试出错: ' + error.message, 'error');
+            }
+        }
+        
+        function testLocalStorage() {
+            addResult('测试本地存储...', 'info');
+            
+            try {
+                // 测试AuthStorage功能
+                const testUser = {
+                    username: 'testuser',
+                    email: 'test@example.com',
+                    password: 'test123',
+                    role: 'user',
+                    createdAt: new Date().toISOString(),
+                    lastLogin: null
+                };
+                
+                // 保存测试用户
+                const users = JSON.parse(localStorage.getItem('chatbot_users') || '{}');
+                users['testuser'] = testUser;
+                localStorage.setItem('chatbot_users', JSON.stringify(users));
+                
+                // 验证保存
+                const savedUsers = JSON.parse(localStorage.getItem('chatbot_users') || '{}');
+                if (savedUsers['testuser']) {
+                    addResult('本地存储测试成功！用户已保存', 'success');
+                } else {
+                    addResult('本地存储测试失败', 'error');
+                }
+            } catch (error) {
+                addResult('本地存储测试出错: ' + error.message, 'error');
+            }
+        }
+        
+        function clearStorage() {
+            addResult('清除本地存储...', 'info');
+            
+            try {
+                localStorage.removeItem('chatbot_users');
+                localStorage.removeItem('chatbot_current_user');
+                localStorage.removeItem('chatbot_remember_me');
+                localStorage.removeItem('chatbot_failed_attempts');
+                localStorage.removeItem('chatbot_blocked_ips');
+                
+                addResult('本地存储已清除', 'success');
+                
+                // 重新加载iframe
+                const iframe = document.getElementById('main-app');
+                iframe.src = iframe.src;
+            } catch (error) {
+                addResult('清除存储出错: ' + error.message, 'error');
+            }
+        }
+        
+        // 页面加载时自动打开主应用
+        window.onload = function() {
+            addResult('页面加载完成，准备测试注册功能', 'info');
+        };
+    </script>
+</body>
+</html> 

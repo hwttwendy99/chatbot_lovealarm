@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff0f7 0%, #f0f0ff 50%, #f0fff7 100%);
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+        
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 注册功能测试</h1>
+        <p>这个页面用于测试注册功能是否正常工作。</p>
+        
+        <div>
+            <button class="test-button" onclick="testRegisterLink()">测试注册链接</button>
+            <button class="test-button" onclick="checkPages()">检查页面元素</button>
+            <button class="test-button" onclick="testRegisterForm()">测试注册表单</button>
+            <button class="test-button" onclick="openMainApp()">打开主应用</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        function testRegisterLink() {
+            addResult('开始测试注册链接...', 'info');
+            
+            // 尝试打开主应用
+            const mainApp = window.open('0801chatbot.html', '_blank');
+            if (mainApp) {
+                addResult('主应用已打开，请在控制台查看测试结果', 'success');
+            } else {
+                addResult('无法打开主应用，请检查文件路径', 'error');
+            }
+        }
+        
+        function checkPages() {
+            addResult('检查页面元素...', 'info');
+            
+            // 尝试检查主应用的页面元素
+            try {
+                const mainApp = window.open('0801chatbot.html', '_blank');
+                if (mainApp) {
+                    setTimeout(() => {
+                        mainApp.postMessage({type: 'checkPages'}, '*');
+                        addResult('已发送检查页面元素的请求', 'success');
+                    }, 1000);
+                }
+            } catch (error) {
+                addResult('检查页面元素时出错: ' + error.message, 'error');
+            }
+        }
+        
+        function testRegisterForm() {
+            addResult('测试注册表单...', 'info');
+            
+            // 创建测试表单
+            const testForm = document.createElement('form');
+            testForm.innerHTML = `
+                <h3>测试注册表单</h3>
+                <input type="text" id="test-username" placeholder="用户名" required><br><br>
+                <input type="email" id="test-email" placeholder="邮箱" required><br><br>
+                <input type="password" id="test-password" placeholder="密码" required><br><br>
+                <input type="password" id="test-confirm" placeholder="确认密码" required><br><br>
+                <button type="submit" class="test-button">测试注册</button>
+            `;
+            
+            testForm.onsubmit = function(e) {
+                e.preventDefault();
+                const username = document.getElementById('test-username').value;
+                const email = document.getElementById('test-email').value;
+                const password = document.getElementById('test-password').value;
+                const confirm = document.getElementById('test-confirm').value;
+                
+                if (password !== confirm) {
+                    addResult('密码不匹配', 'error');
+                    return;
+                }
+                
+                addResult(`测试注册数据: 用户名=${username}, 邮箱=${email}`, 'success');
+            };
+            
+            document.querySelector('.test-container').appendChild(testForm);
+        }
+        
+        function openMainApp() {
+            addResult('打开主应用...', 'info');
+            window.open('0801chatbot.html', '_blank');
+        }
+        
+        // 监听来自主应用的消息
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'pageCheckResult') {
+                addResult('页面检查结果: ' + JSON.stringify(event.data.result), 'success');
+            }
+        });
+    </script>
+</body>
+</html> 
