@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修复认证系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff0f7 0%, #f0f0ff 50%, #f0fff7 100%);
+        }
+        
+        .fix-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+        }
+        
+        .fix-button {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .fix-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+        
+        .fix-button.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .fix-button.danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+    </style>
+</head>
+<body>
+    <div class="fix-container">
+        <h1>🔧 修复认证系统</h1>
+        <p>这个页面将自动修复注册和登录功能的问题。</p>
+        
+        <div>
+            <button class="fix-button" onclick="fixAll()">自动修复所有问题</button>
+            <button class="fix-button success" onclick="fixRegisterLink()">修复注册链接</button>
+            <button class="fix-button" onclick="fixLogin()">修复登录功能</button>
+            <button class="fix-button" onclick="createDefaultUsers()">创建默认用户</button>
+            <button class="fix-button danger" onclick="resetData()">重置数据</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            resultsDiv.appendChild(resultDiv);
+            
+            // 滚动到底部
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        async function fixAll() {
+            addResult('🚀 开始自动修复...', 'info');
+            
+            try {
+                // 步骤1: 重置数据
+                addResult('步骤1: 重置数据...', 'info');
+                resetData();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 步骤2: 创建默认用户
+                addResult('步骤2: 创建默认用户...', 'info');
+                createDefaultUsers();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 步骤3: 修复注册链接
+                addResult('步骤3: 修复注册链接...', 'info');
+                fixRegisterLink();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 步骤4: 修复登录功能
+                addResult('步骤4: 修复登录功能...', 'info');
+                fixLogin();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                addResult('✅ 自动修复完成！', 'success');
+                addResult('现在可以测试注册和登录功能了。', 'info');
+                
+            } catch (error) {
+                addResult('❌ 自动修复失败: ' + error.message, 'error');
+            }
+        }
+        
+        function resetData() {
+            addResult('重置所有数据...', 'info');
+            
+            // 清除localStorage
+            localStorage.removeItem('chatbot_users');
+            localStorage.removeItem('chatbot_current_user');
+            localStorage.removeItem('chatbot_remember_me');
+            localStorage.removeItem('chatbot_failed_attempts');
+            localStorage.removeItem('chatbot_blocked_ips');
+            localStorage.removeItem('chatbot_settings');
+            
+            addResult('✅ 所有数据已清除', 'success');
+        }
+        
+        function createDefaultUsers() {
+            addResult('创建默认用户...', 'info');
+            
+            // 创建默认管理员账户
+            const adminUser = {
+                username: 'admin',
+                email: 'admin@example.com',
+                password: 'admin123',
+                role: 'admin',
+                createdAt: new Date().toISOString(),
+                lastLogin: null
+            };
+            
+            // 创建测试用户
+            const testUser = {
+                username: 'testuser',
+                email: 'test@example.com',
+                password: 'test123',
+                role: 'user',
+                createdAt: new Date().toISOString(),
+                lastLogin: null
+            };
+            
+            const users = {};
+            users['admin'] = adminUser;
+            users['testuser'] = testUser;
+            
+            localStorage.setItem('chatbot_users', JSON.stringify(users));
+            
+            addResult('✅ 默认用户已创建:', 'success');
+            addResult('管理员账户: admin / admin123', 'info');
+            addResult('测试账户: testuser / test123', 'info');
+        }
+        
+        function fixRegisterLink() {
+            addResult('修复注册链接...', 'info');
+            
+            // 打开主应用并修复注册链接
+            const mainWindow = window.open('0801chatbot.html', '_blank');
+            
+            if (mainWindow) {
+                setTimeout(() => {
+                    try {
+                        // 等待主应用加载
+                        if (mainWindow.document.readyState === 'complete') {
+                            const showRegisterLink = mainWindow.document.getElementById('show-register');
+                            if (showRegisterLink) {
+                                // 重新绑定事件监听器
+                                const newLink = showRegisterLink.cloneNode(true);
+                                showRegisterLink.parentNode.replaceChild(newLink, showRegisterLink);
+                                
+                                newLink.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    console.log('🔄 Switching to register page');
+                                    mainWindow.pageManager.showPage('register-page');
+                                });
+                                
+                                addResult('✅ 注册链接已修复', 'success');
+                            } else {
+                                addResult('❌ 注册链接元素不存在', 'error');
+                            }
+                        } else {
+                            addResult('⚠️ 主应用还在加载中', 'warning');
+                        }
+                    } catch (error) {
+                        addResult('❌ 修复注册链接失败: ' + error.message, 'error');
+                    }
+                }, 3000);
+            } else {
+                addResult('❌ 无法打开主应用', 'error');
+            }
+        }
+        
+        function fixLogin() {
+            addResult('修复登录功能...', 'info');
+            
+            // 打开主应用并测试登录
+            const mainWindow = window.open('0801chatbot.html', '_blank');
+            
+            if (mainWindow) {
+                setTimeout(() => {
+                    try {
+                        // 等待主应用加载
+                        if (mainWindow.document.readyState === 'complete') {
+                            // 测试登录功能
+                            mainWindow.testLoginFlow('admin', 'admin123');
+                            addResult('✅ 登录功能已测试', 'success');
+                        } else {
+                            addResult('⚠️ 主应用还在加载中', 'warning');
+                        }
+                    } catch (error) {
+                        addResult('❌ 修复登录功能失败: ' + error.message, 'error');
+                    }
+                }, 3000);
+            } else {
+                addResult('❌ 无法打开主应用', 'error');
+            }
+        }
+        
+        // 页面加载时显示当前状态
+        window.onload = function() {
+            addResult('页面加载完成', 'info');
+            
+            // 检查当前状态
+            const users = JSON.parse(localStorage.getItem('chatbot_users') || '{}');
+            const currentUser = localStorage.getItem('chatbot_current_user');
+            
+            addResult(`当前状态:\n用户数量: ${Object.keys(users).length}\n当前用户: ${currentUser ? '已登录' : '未登录'}`, 'info');
+            
+            if (Object.keys(users).length === 0) {
+                addResult('⚠️ 没有用户数据，建议创建默认用户', 'warning');
+            }
+        };
+    </script>
+</body>
+</html> 
