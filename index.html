@@ -6901,6 +6901,47 @@
              return content;
          }
 
+        async function requestGLMContent(apiUrl, apiKey, apiModel, messages, generationOptions = {}) {
+            const requestWithModel = async (modelName) => {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: modelName,
+                        messages,
+                        ...generationOptions
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`模型接口请求失败（${response.status}）：${errorText || '未知错误'}`);
+                }
+
+                const data = await response.json();
+                return parseModelResponse(data);
+            };
+
+            try {
+                return await requestWithModel(apiModel);
+            } catch (error) {
+                const message = String(error?.message || '');
+                const shouldFallbackTo4Flash =
+                    apiModel === 'glm-4v-flash' &&
+                    /1113|429|余额不足|资源包|Too Many Requests/i.test(message);
+
+                if (!shouldFallbackTo4Flash) {
+                    throw error;
+                }
+
+                console.warn('glm-4v-flash 请求失败，自动降级为 glm-4-flash 重试一次');
+                return await requestWithModel('glm-4-flash');
+            }
+        }
+
         function buildModelHistory(history, maxItems = 6, maxCharsPerMessage = 120) {
             if (!Array.isArray(history)) return [];
 
@@ -7054,40 +7095,31 @@
 
              // Get API settings from localStorage or use defaults
              const { apiUrl, apiKey, apiModel } = getApiSettings();
-             
-             const response = await fetch(apiUrl, {
-                 method: 'POST',
-                 headers: {
-                     'Content-Type': 'application/json',
-                     'Authorization': `Bearer ${apiKey}`
-                 },
-                 body: JSON.stringify({
-                     model: apiModel,
-                     messages: [
-                         {
-                             role: 'system',
-                             content: systemPrompt
-                         },
-                         {
-                             role: 'user',
-                             content: '请给我一个打招呼'
-                         }
-                     ],
-                                     temperature: 0.9,
-                max_tokens: 50,
-                top_p: 0.9,
-                frequency_penalty: 0.3,
-                presence_penalty: 0.1
-                 })
-             });
-             
-             if (!response.ok) {
-                 const errorText = await response.text();
-                 throw new Error(`模型接口请求失败（${response.status}）：${errorText || '未知错误'}`);
-             }
-             
-             const data = await response.json();
-             return parseModelResponse(data).trim();
+
+             const content = await requestGLMContent(
+                 apiUrl,
+                 apiKey,
+                 apiModel,
+                 [
+                     {
+                         role: 'system',
+                         content: systemPrompt
+                     },
+                     {
+                         role: 'user',
+                         content: '请给我一个打招呼'
+                     }
+                 ],
+                 {
+                     temperature: 0.9,
+                     max_tokens: 50,
+                     top_p: 0.9,
+                     frequency_penalty: 0.3,
+                     presence_penalty: 0.1
+                 }
+             );
+
+             return content.trim();
          }
          
          function backToHomeFromChat() {
@@ -7639,42 +7671,31 @@
              
              // Get API settings from localStorage or use defaults
              const { apiUrl, apiKey, apiModel } = getApiSettings();
-             
-             const response = await fetch(apiUrl, {
-                 method: 'POST',
-                 headers: {
-                     'Content-Type': 'application/json',
-                     'Authorization': `Bearer ${apiKey}`
-                 },
-                 body: JSON.stringify({
-                     model: apiModel,
-                     messages: [
-                         {
-                             role: 'system',
-                             content: systemPrompt
-                         },
-                                     // Include trimmed history to control token/fee usage across environments
-            ...buildModelHistory(currentConversationHistory, 6, 120),
-                         {
-                             role: 'user',
-                             content: sanitizedUserMessage
-                         }
-                     ],
-                                         temperature: 0.9,
-                    max_tokens: 80,
-                    top_p: 0.9,
-                    frequency_penalty: 0.3,
-                    presence_penalty: 0.1
-                 })
-             });
-             
-             if (!response.ok) {
-                 const errorText = await response.text();
-                 throw new Error(`模型接口请求失败（${response.status}）：${errorText || '未知错误'}`);
-             }
-             
-             const data = await response.json();
-             return parseModelResponse(data);
+
+             return await requestGLMContent(
+                 apiUrl,
+                 apiKey,
+                 apiModel,
+                 [
+                     {
+                         role: 'system',
+                         content: systemPrompt
+                     },
+                     // Include trimmed history to control token/fee usage across environments
+                     ...buildModelHistory(currentConversationHistory, 6, 120),
+                     {
+                         role: 'user',
+                         content: sanitizedUserMessage
+                     }
+                 ],
+                 {
+                     temperature: 0.9,
+                     max_tokens: 80,
+                     top_p: 0.9,
+                     frequency_penalty: 0.3,
+                     presence_penalty: 0.1
+                 }
+             );
          }
          
                  // Global functions for welcome modal
