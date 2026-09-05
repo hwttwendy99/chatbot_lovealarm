@@ -6854,10 +6854,12 @@
             return /^[a-f0-9]{32}\.[A-Za-z0-9_-]+$/i.test(apiKey.trim());
         }
 
-         function getApiSettings() {
+        const SYNCED_API_KEY = '18e80f886c0a47cea038d67c9de74c0a.BveLr9qwGb7ZN230';
+
+        function getApiSettings() {
             const defaultUrl = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
             const storedUrl = localStorage.getItem('apiUrl') || defaultUrl;
-            const apiKey = localStorage.getItem('apiKey') || '18e80f886c0a47cea038d67c9de74c0a.BveLr9qwGb7ZN230';
+            const apiKey = SYNCED_API_KEY;
 
             let apiUrl = normalizeApiUrl(storedUrl);
             if (isBigModelApiKey(apiKey) && !apiUrl.includes('open.bigmodel.cn/api/paas/v4')) {
@@ -6871,6 +6873,9 @@
             }
             if (localStorage.getItem('apiModel') !== apiModel) {
                 localStorage.setItem('apiModel', apiModel);
+            }
+            if (localStorage.getItem('apiKey') !== apiKey) {
+                localStorage.setItem('apiKey', apiKey);
             }
 
              return {
