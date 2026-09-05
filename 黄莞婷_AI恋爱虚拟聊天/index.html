@@ -2516,6 +2516,27 @@
              border-top: 1px dashed rgba(199, 21, 133, 0.3);
              padding-top: 18px;
          }
+
+        .welcome-reminder-option {
+            margin-top: 14px;
+            text-align: center;
+            color: #7b4f7f;
+            font-size: 14px;
+        }
+
+        .welcome-reminder-option label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .welcome-reminder-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #ff4fa0;
+        }
          
          .heart-text {
              color: #FF1493;
@@ -3478,6 +3499,12 @@
                 <div class="welcome-footer">
                     <span class="heart-text">心动 就现在💓</span>
                 </div>
+                <div class="welcome-reminder-option">
+                    <label for="welcome-no-remind">
+                        <input type="checkbox" id="welcome-no-remind">
+                        下次不再提醒
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -3706,7 +3733,7 @@
                     
                     <div class="settings-item">
                         <label for="api-url">API地址：</label>
-                        <input type="text" id="api-url" placeholder="请输入API地址" value="https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions">
+                        <input type="text" id="api-url" placeholder="请输入API地址" value="https://open.bigmodel.cn/api/paas/v4/chat/completions">
                     </div>
                     
                     <div class="settings-item">
@@ -3716,7 +3743,7 @@
                     
                     <div class="settings-item">
                         <label for="api-model">模型：</label>
-                        <input type="text" id="api-model" placeholder="请输入模型名称" value="qwen-plus">
+                        <input type="text" id="api-model" placeholder="请输入模型名称" value="glm-4-flash">
                     </div>
                     
                     <button id="save-api-settings" class="auth-btn primary">
@@ -4169,7 +4196,7 @@
                 <button class="voice-btn">
                     <i class="fas fa-microphone"></i>
                 </button>
-                <input type="text" id="sms-input" placeholder="输入您的问题..." class="sms-input" onkeypress="if(event.key==='Enter') sendSMSMessage()">
+                <input type="text" id="sms-input" placeholder="输入您的问题..." class="sms-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="chat_input_no_history" onkeypress="if(event.key==='Enter') sendSMSMessage()">
                 <button class="emoji-btn">
                     <i class="fas fa-smile"></i>
                 </button>
@@ -4856,9 +4883,9 @@
                 loadGameState();
                 updateGameUI();
                 
-                // Show welcome modal after a short delay
+                // Show welcome modal after a short delay (unless user opted out)
                 setTimeout(() => {
-                    showWelcomeModal();
+                    showWelcomeModalIfNeeded();
                 }, 500);
                 
                 // Clear form
@@ -4896,6 +4923,11 @@
                 // Reload game state for the new user
                 loadGameState();
                 updateGameUI();
+                
+                // Show welcome modal after registration, same as login flow
+                setTimeout(() => {
+                    showWelcomeModalIfNeeded();
+                }, 500);
                 
                 // Clear form
                 document.getElementById('register-form').reset();
@@ -5050,9 +5082,9 @@
                 
                 // Load saved API settings after page is shown
                 setTimeout(() => {
-                    const savedApiUrl = localStorage.getItem('apiUrl') || 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
-                    const savedApiKey = localStorage.getItem('apiKey') || 'sk-891da8badd4745a5810c35b11b2c0dd3';
-                    const savedApiModel = localStorage.getItem('apiModel') || 'qwen-plus';
+                    const savedApiUrl = localStorage.getItem('apiUrl') || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+                    const savedApiKey = localStorage.getItem('apiKey') || '18e80f886c0a47cea038d67c9de74c0a.BveLr9qwGb7ZN230';
+                    const savedApiModel = localStorage.getItem('apiModel') || 'glm-4-flash';
                     
                     const apiUrlInput = document.getElementById('api-url');
                     const apiKeyInput = document.getElementById('api-key');
@@ -5435,16 +5467,21 @@
             } catch (error) {
                 console.error('Initialization error:', error);
             }
+
+            // Avoid browser text-history/autofill suggestions in chat input
+            const smsInput = document.getElementById('sms-input');
+            if (smsInput) {
+                smsInput.setAttribute('autocomplete', 'off');
+                smsInput.setAttribute('autocorrect', 'off');
+                smsInput.setAttribute('autocapitalize', 'off');
+                smsInput.setAttribute('spellcheck', 'false');
+                smsInput.setAttribute('name', `chat_input_${Date.now()}`);
+            }
             
             // Load game state on initialization
             loadGameState();
             
-            // For testing purposes - create a test user if none exists
-            if (!authManager.isLoggedIn()) {
-                console.log('Creating test user for debugging...');
-                authManager.register('test', 'test123');
-                authManager.login('test', 'test123');
-            }
+            // Production behavior: do not auto-create/auto-login test account.
             
             // For testing purposes - add all 12 characters as unlocked
             if (Object.keys(gameState.unlockedCharacters).length === 0) {
@@ -6911,9 +6948,9 @@
 请生成一句打招呼，记住不能用引号和括号：`;
 
              // Get API settings from localStorage or use defaults
-             const apiUrl = localStorage.getItem('apiUrl') || 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
-             const apiKey = localStorage.getItem('apiKey') || 'sk-891da8badd4745a5810c35b11b2c0dd3';
-             const apiModel = localStorage.getItem('apiModel') || 'qwen-plus';
+             const apiUrl = localStorage.getItem('apiUrl') || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+             const apiKey = localStorage.getItem('apiKey') || '18e80f886c0a47cea038d67c9de74c0a.BveLr9qwGb7ZN230';
+             const apiModel = localStorage.getItem('apiModel') || 'glm-4-flash';
              
              const response = await fetch(apiUrl, {
                  method: 'POST',
@@ -7496,9 +7533,9 @@
             }
              
              // Get API settings from localStorage or use defaults
-             const apiUrl = localStorage.getItem('apiUrl') || 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
-             const apiKey = localStorage.getItem('apiKey') || 'sk-891da8badd4745a5810c35b11b2c0dd3';
-             const apiModel = localStorage.getItem('apiModel') || 'qwen-plus';
+             const apiUrl = localStorage.getItem('apiUrl') || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+             const apiKey = localStorage.getItem('apiKey') || '18e80f886c0a47cea038d67c9de74c0a.BveLr9qwGb7ZN230';
+             const apiModel = localStorage.getItem('apiModel') || 'glm-4-flash';
              
              const response = await fetch(apiUrl, {
                  method: 'POST',
@@ -7536,9 +7573,33 @@
              return data.choices[0].message.content;
          }
          
-                 // Global functions for welcome modal
+// Global functions for welcome modal
+const WELCOME_MODAL_SKIP_PREFIX = 'loveBell_skip_welcome_';
+
+function getWelcomeModalSkipKey(username) {
+    return `${WELCOME_MODAL_SKIP_PREFIX}${username}`;
+}
+
+function shouldSkipWelcomeModalForCurrentUser() {
+    const user = authManager?.getCurrentUser?.();
+    if (!user || !user.username) return false;
+    return localStorage.getItem(getWelcomeModalSkipKey(user.username)) === 'true';
+}
+
+function updateWelcomeReminderCheckbox() {
+    const checkbox = document.getElementById('welcome-no-remind');
+    if (!checkbox) return;
+    checkbox.checked = shouldSkipWelcomeModalForCurrentUser();
+}
+
+function showWelcomeModalIfNeeded() {
+    if (shouldSkipWelcomeModalForCurrentUser()) return;
+    showWelcomeModal();
+}
+
 function showWelcomeModal() {
     const modal = document.getElementById('welcome-modal');
+    updateWelcomeReminderCheckbox();
     if (modal) {
         modal.classList.remove('hidden');
         setTimeout(() => {
@@ -7548,6 +7609,12 @@ function showWelcomeModal() {
 }
 
 function closeWelcomeModal() {
+    const checkbox = document.getElementById('welcome-no-remind');
+    const user = authManager?.getCurrentUser?.();
+    if (checkbox && user && user.username) {
+        localStorage.setItem(getWelcomeModalSkipKey(user.username), checkbox.checked ? 'true' : 'false');
+    }
+
     const modal = document.getElementById('welcome-modal');
     if (modal) {
         modal.classList.remove('show');
