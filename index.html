@@ -5091,9 +5091,7 @@
                 
                 // Load saved API settings after page is shown
                 setTimeout(() => {
-                    const savedApiUrl = localStorage.getItem('apiUrl') || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-                    const savedApiKey = localStorage.getItem('apiKey') || '18e80f886c0a47cea038d67c9de74c0a.BveLr9qwGb7ZN230';
-                    const savedApiModel = localStorage.getItem('apiModel') || 'glm-4-flash';
+                    const { apiUrl: savedApiUrl, apiKey: savedApiKey, apiModel: savedApiModel } = getApiSettings();
                     
                     const apiUrlInput = document.getElementById('api-url');
                     const apiKeyInput = document.getElementById('api-key');
@@ -6851,10 +6849,29 @@
              return model;
          }
 
+        function isBigModelApiKey(apiKey) {
+            if (!apiKey) return false;
+            return /^[a-f0-9]{32}\.[A-Za-z0-9_-]+$/i.test(apiKey.trim());
+        }
+
          function getApiSettings() {
-             const apiUrl = normalizeApiUrl(localStorage.getItem('apiUrl') || 'https://open.bigmodel.cn/api/paas/v4/chat/completions');
-             const apiKey = localStorage.getItem('apiKey') || '18e80f886c0a47cea038d67c9de74c0a.BveLr9qwGb7ZN230';
-             const apiModel = normalizeApiModel(apiUrl, localStorage.getItem('apiModel') || 'glm-4-flash');
+            const defaultUrl = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+            const storedUrl = localStorage.getItem('apiUrl') || defaultUrl;
+            const apiKey = localStorage.getItem('apiKey') || '18e80f886c0a47cea038d67c9de74c0a.BveLr9qwGb7ZN230';
+
+            let apiUrl = normalizeApiUrl(storedUrl);
+            if (isBigModelApiKey(apiKey) && !apiUrl.includes('open.bigmodel.cn/api/paas/v4')) {
+                apiUrl = defaultUrl;
+            }
+
+            const apiModel = normalizeApiModel(apiUrl, localStorage.getItem('apiModel') || 'glm-4-flash');
+
+            if (localStorage.getItem('apiUrl') !== apiUrl) {
+                localStorage.setItem('apiUrl', apiUrl);
+            }
+            if (localStorage.getItem('apiModel') !== apiModel) {
+                localStorage.setItem('apiModel', apiModel);
+            }
 
              return {
                  apiUrl,
@@ -7438,10 +7455,11 @@
              } catch (error) {
                  console.error('Error calling Qwen API:', error);
                  hideTypingIndicator();
-                 
-                 // Fallback response
+
+                // Show actual error to avoid hiding deploy-side configuration problems.
+                const errorMessage = (error && error.message) ? String(error.message) : '未知错误';
                  setTimeout(() => {
-                     addAIMessage('抱歉，我现在有点忙，稍后再聊好吗？');
+                    addAIMessage(`接口异常：${errorMessage}`);
                  }, 500);
              }
          }
