@@ -3734,7 +3734,7 @@
                     
                     <div class="settings-item">
                         <label for="api-url">API地址：</label>
-                        <input type="text" id="api-url" placeholder="请输入API地址" value="https://open.bigmodel.cn/api/paas/v4/chat/completions">
+                        <input type="text" id="api-url" placeholder="请输入API地址" value="https://open.bigmodel.cn/api/paas/v4/">
                     </div>
                     
                     <div class="settings-item">
@@ -3744,7 +3744,7 @@
                     
                     <div class="settings-item">
                         <label for="api-model">模型：</label>
-                        <input type="text" id="api-model" placeholder="请输入模型名称" value="glm-4-flash">
+                        <input type="text" id="api-model" placeholder="请输入模型名称" value="glm-4v-flash">
                     </div>
                     
                     <button id="save-api-settings" class="auth-btn primary">
@@ -6817,8 +6817,8 @@
              messagesContainer.scrollTop = messagesContainer.scrollHeight;
          }
 
-         function normalizeApiUrl(rawApiUrl) {
-             if (!rawApiUrl) return 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+        function normalizeApiUrl(rawApiUrl) {
+            if (!rawApiUrl) return 'https://open.bigmodel.cn/api/paas/v4/';
              const trimmed = rawApiUrl.trim();
              const withoutTrailingSlash = trimmed.replace(/\/+$/, '');
 
@@ -6835,14 +6835,14 @@
          }
 
          function normalizeApiModel(apiUrl, rawModel) {
-             const fallbackModel = 'glm-4-flash';
+            const fallbackModel = 'glm-4v-flash';
              const model = (rawModel || '').trim();
              const isBigModelEndpoint = apiUrl.includes('open.bigmodel.cn/api/paas/v4');
 
              if (!model) return fallbackModel;
 
              // Migrate legacy DashScope model value to BigModel default automatically.
-             if (isBigModelEndpoint && model === 'qwen-plus') {
+            if (isBigModelEndpoint && (model === 'qwen-plus' || model === 'glm-4-flash')) {
                  return fallbackModel;
              }
 
@@ -6857,16 +6857,16 @@
         const SYNCED_API_KEY = '18e80f886c0a47cea038d67c9de74c0a.BveLr9qwGb7ZN230';
 
         function getApiSettings() {
-            const defaultUrl = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+            const defaultUrl = 'https://open.bigmodel.cn/api/paas/v4/';
             const storedUrl = localStorage.getItem('apiUrl') || defaultUrl;
             const apiKey = SYNCED_API_KEY;
 
             let apiUrl = normalizeApiUrl(storedUrl);
             if (isBigModelApiKey(apiKey) && !apiUrl.includes('open.bigmodel.cn/api/paas/v4')) {
-                apiUrl = defaultUrl;
+                apiUrl = normalizeApiUrl(defaultUrl);
             }
 
-            const apiModel = normalizeApiModel(apiUrl, localStorage.getItem('apiModel') || 'glm-4-flash');
+            const apiModel = normalizeApiModel(apiUrl, localStorage.getItem('apiModel') || 'glm-4v-flash');
 
             if (localStorage.getItem('apiUrl') !== apiUrl) {
                 localStorage.setItem('apiUrl', apiUrl);
