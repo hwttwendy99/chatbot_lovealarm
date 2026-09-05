@@ -3745,7 +3745,7 @@
                     
                     <div class="settings-item">
                         <label for="api-model">模型：</label>
-                        <input type="text" id="api-model" placeholder="请输入模型名称" value="glm-4v-flash">
+                        <input type="text" id="api-model" placeholder="请输入模型名称" value="GLM-4-Flash-250414">
                     </div>
                     
                     <button id="save-api-settings" class="auth-btn primary">
@@ -6836,14 +6836,14 @@
          }
 
          function normalizeApiModel(apiUrl, rawModel) {
-            const fallbackModel = 'glm-4v-flash';
+           const fallbackModel = 'GLM-4-Flash-250414';
              const model = (rawModel || '').trim();
              const isBigModelEndpoint = apiUrl.includes('open.bigmodel.cn/api/paas/v4');
 
              if (!model) return fallbackModel;
 
-             // Migrate legacy DashScope model value to BigModel default automatically.
-            if (isBigModelEndpoint && model === 'glm-4-flash') {
+           // Migrate old model values to current BigModel default automatically.
+           if (isBigModelEndpoint && (model === 'glm-4-flash' || model === 'glm-4v-flash')) {
                  return fallbackModel;
              }
 
@@ -6867,7 +6867,7 @@
                 apiUrl = normalizeApiUrl(defaultUrl);
             }
 
-            const apiModel = normalizeApiModel(apiUrl, localStorage.getItem('apiModel') || 'glm-4v-flash');
+           const apiModel = normalizeApiModel(apiUrl, localStorage.getItem('apiModel') || 'GLM-4-Flash-250414');
 
             if (localStorage.getItem('apiUrl') !== apiUrl) {
                 localStorage.setItem('apiUrl', apiUrl);
@@ -6930,14 +6930,14 @@
             } catch (error) {
                 const message = String(error?.message || '');
                 const shouldFallbackTo4Flash =
-                    apiModel === 'glm-4v-flash' &&
+                    apiModel === 'GLM-4-Flash-250414' &&
                     /1113|429|余额不足|资源包|Too Many Requests/i.test(message);
 
                 if (!shouldFallbackTo4Flash) {
                     throw error;
                 }
 
-                console.warn('glm-4v-flash 请求失败，自动降级为 glm-4-flash 重试一次');
+                console.warn('GLM-4-Flash-250414 请求失败，自动降级为 glm-4-flash 重试一次');
                 return await requestWithModel('glm-4-flash');
             }
         }
