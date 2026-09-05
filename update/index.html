@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>恋爱铃 - 动漫风格聊天应用</title>
+    <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -6842,7 +6843,7 @@
              if (!model) return fallbackModel;
 
              // Migrate legacy DashScope model value to BigModel default automatically.
-            if (isBigModelEndpoint && (model === 'qwen-plus' || model === 'glm-4-flash')) {
+            if (isBigModelEndpoint && model === 'glm-4-flash') {
                  return fallbackModel;
              }
 
@@ -7460,8 +7461,8 @@
              showTypingIndicator();
              
              try {
-                 // Call Qwen API
-                 const response = await callQwenAPI(message);
+                // Call GLM API
+                const response = await callGLMAPI(message);
                  
                  // Hide typing indicator
                  hideTypingIndicator();
@@ -7472,7 +7473,7 @@
                  }, 500);
                  
              } catch (error) {
-                 console.error('Error calling Qwen API:', error);
+                console.error('Error calling GLM API:', error);
                  hideTypingIndicator();
 
                 // Show actual error to avoid hiding deploy-side configuration problems.
@@ -7483,7 +7484,7 @@
              }
          }
          
-         async function callQwenAPI(userMessage) {
+        async function callGLMAPI(userMessage) {
              // Build character-specific system prompt
              let characterSpecificPrompt = '';
              
