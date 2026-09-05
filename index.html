@@ -6899,6 +6899,20 @@
 
              return content;
          }
+
+        function buildModelHistory(history, maxItems = 6, maxCharsPerMessage = 120) {
+            if (!Array.isArray(history)) return [];
+
+            return history
+                .filter(msg => msg && (msg.role === 'user' || msg.role === 'assistant') && typeof msg.content === 'string')
+                // Remove local error bubbles from model context to avoid noisy loops.
+                .filter(msg => !msg.content.startsWith('接口异常：'))
+                .slice(-maxItems)
+                .map(msg => ({
+                    role: msg.role,
+                    content: msg.content.slice(0, maxCharsPerMessage)
+                }));
+        }
          
          // Generate dynamic greeting based on character personality
          async function generateDynamicGreeting() {
@@ -7638,8 +7652,8 @@
                              role: 'system',
                              content: systemPrompt
                          },
-                                      // Include conversation history for context (last 10 messages to maintain context while avoiding token limits)
-             ...currentConversationHistory.slice(-10),
+                                     // Include trimmed history to control token/fee usage across environments
+            ...buildModelHistory(currentConversationHistory, 6, 120),
                          {
                              role: 'user',
                              content: sanitizedUserMessage
